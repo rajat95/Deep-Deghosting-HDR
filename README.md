@@ -43,7 +43,7 @@ python infer.py --source\_dir test\_set --fusion\_model tied --ref\_label 2 --gp
 
 ## Training Instructions:
 
-Script train\_refine.py trains refinement model. </br>
+* Script train\_refine.py trains refinement model. </br>
 
 
 ### Description of inputs to the script: 
@@ -59,7 +59,7 @@ Script train\_refine.py trains refinement model. </br>
 9. gpu : GPU id of the device to use for training. </br>
 
 
-Script train\_static\_fusion.py trains fusion model. </br>
+* Script train\_static\_fusion.py trains fusion model. </br>
 
 ### Description of inputs to the script: 
 
