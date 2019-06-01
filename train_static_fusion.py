@@ -24,8 +24,8 @@ import cv2
 
 begin_time = time.strftime("%m_%d-%H:%M:%S")
 parser = argparse.ArgumentParser()
-parser.add_argument('--train_patch_idx', default='./fusion_train.txt', help='link to list of training patches')
-parser.add_argument('--test_patch_idx', default='./fusion_test.txt', help='link to list of test patches')
+parser.add_argument('--train_patch_idx', default='./data_samples/fusion_train.txt', help='link to list of training patches')
+parser.add_argument('--test_patch_idx', default='./data_samples/fusion_test.txt', help='link to list of test patches')
 parser.add_argument('--fusion_model', default='tied', help='tied|untied')
 parser.add_argument('--logdir', default='static_fusion_logs/', help='path to training logs')
 parser.add_argument('--epochs', default=100, help='path to dataset')
