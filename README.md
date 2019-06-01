@@ -38,7 +38,7 @@ Use script infer.py to perform inference. The script expects : </br>
 
 ### Sample Command:
 ```
-python infer.py --source\_dir test\_set --fusion\_model tied --ref\_label 2 --gpu 1
+python infer.py --source_dir ./data_samples/test_set --fusion_model tied --ref_label 2 --gpu 1
 ```
 
 ## Training Instructions:
