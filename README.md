@@ -48,7 +48,7 @@ python infer.py --source\_dir test\_set --fusion\_model tied --ref\_label 2 --gp
 
 #### Description of inputs to the script: 
 
-1. train\_patch\_list : list of training images. Download them from (Link to be updated soon). Use a pretrained flow algorithm to precompute flow as numpy files and save them as flow\_21.npy and flow\_23.npy. Refer to file refine\_train.txt and directory refine\_data for sample </br>
+1. train\_patch\_list : list of training images. Download them from (Link to be updated soon). Use a pretrained flow algorithm to precompute flow as numpy files and save them as flow\_21.npy and flow\_23.npy. Refer to file data_samples/refine\_train.txt and directory data_samples/refine\_data for sample </br>
 2. val\_patch\_list : list of test images organized similarly. </br>
 3. logdir : checkpoints and tensorboard visualizations get logged here. </br>
 4. iters : number of iterations to train model for. </br>
@@ -65,7 +65,7 @@ python infer.py --source\_dir test\_set --fusion\_model tied --ref\_label 2 --gp
 
 Note: Use pretrained refinement model to generate static version of training images  </br>
 
-1. train\_patch\_idx : list of training images. Download them from (here) [http://cseweb.ucsd.edu/~viscomp/projects/SIG17HDR/]. Refer to file fusion\_train.txt and directory fusion\_data for sample. </br>
+1. train\_patch\_idx : list of training images. Download them from (here) [http://cseweb.ucsd.edu/~viscomp/projects/SIG17HDR/]. Refer to file data_samples/fusion\_train.txt and directory data_samples/fusion\_data for sample. </br>
 2. test\_patch\_idx : list of test images. </br>
 3. fusion\_model : choose between untied and tied fusion model. </br>
 4. logdir :  checkpoints and tensorboard visualizations get logged here. </br>
