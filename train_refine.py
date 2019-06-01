@@ -23,8 +23,8 @@ from skimage.transform import resize
 from prepare_batch import data_pipeline_refine
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--train_patch_list', default='./refine_train.txt', help='link to list of training patches')
-parser.add_argument('--val_patch_list', default='./refine_test.txt', help='link to list of test patches')
+parser.add_argument('--train_patch_list', default='./data_samples/refine_train.txt', help='link to list of training patches')
+parser.add_argument('--val_patch_list', default='./data_samples/refine_test.txt', help='link to list of test patches')
 parser.add_argument('--logdir', default='refine_maps/', help='path to training logs')
 parser.add_argument('--iters', default=55001, help='number of epochs')
 parser.add_argument('--batch_size', type=int, default=8, help='input batch size')
