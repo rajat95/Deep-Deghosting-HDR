@@ -24,7 +24,7 @@ from tf_warp import backward_warp
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--source_dir', default='./test_data/', help='link to list of training patches')
+parser.add_argument('--source_dir', default='./data_samples/test_data/', help='link to list of training patches')
 parser.add_argument('--fusion_model', default='tied', help='tied|untied')
 parser.add_argument('--fusion_ckpt', default='./checkpoints/pretrained_tied_fusion/model150.ckpt', help='path to fusion ckpt')
 parser.add_argument('--refine_ckpt', default='./checkpoints/pretrained_refine/model55.ckpt', help='path to refine ckpt')
