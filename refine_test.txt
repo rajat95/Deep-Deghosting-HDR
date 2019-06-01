@@ -1,1 +1,0 @@
-['./refine_data/input/2EV/1/ghosted/']
