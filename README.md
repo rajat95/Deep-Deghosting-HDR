@@ -1,4 +1,4 @@
-## Deep Deghosting HDR:
+# Deep Deghosting HDR:
 
 This Repository contains code and pretrained models for HDR version of our paper : (A Fast, Scalable, and Reliable Deghosting Method for Extreme Exposure Fusion) [Link] accepted at ICCP, 2019 .</br>
 It has been tested on GTX 1080ti and RTX 20170 GPUs and tensorflow 1.13 and contains scripts for both inference and training .</br>
@@ -43,10 +43,10 @@ python infer.py --source\_dir test\_set --fusion\_model tied --ref\_label 2 --gp
 
 ## Training Instructions:
 
-* Script train\_refine.py trains refinement model. </br>
+### Script train\_refine.py trains refinement model. </br>
 
 
-### Description of inputs to the script: 
+#### Description of inputs to the script: 
 
 1. train\_patch\_list : list of training images. Download them from (Link to be updated soon). Use a pretrained flow algorithm to precompute flow as numpy files and save them as flow\_21.npy and flow\_23.npy. Refer to file refine\_train.txt and directory refine\_data for sample </br>
 2. val\_patch\_list : list of test images organized similarly. </br>
@@ -59,9 +59,9 @@ python infer.py --source\_dir test\_set --fusion\_model tied --ref\_label 2 --gp
 9. gpu : GPU id of the device to use for training. </br>
 
 
-* Script train\_static\_fusion.py trains fusion model. </br>
+### Script train\_static\_fusion.py trains fusion model. </br>
 
-### Description of inputs to the script: 
+#### Description of inputs to the script: 
 
 Note: Use pretrained refinement model to generate static version of training images  </br>
 
