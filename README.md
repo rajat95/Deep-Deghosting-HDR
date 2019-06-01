@@ -1,3 +1,5 @@
+## Deep Deghosting HDR:
+
 This Repository contains code and pretrained models for HDR version of our paper : (A Fast, Scalable, and Reliable Deghosting Method for Extreme Exposure Fusion) [Link] accepted at ICCP, 2019 .</br>
 It has been tested on GTX 1080ti and RTX 20170 GPUs and tensorflow 1.13 and contains scripts for both inference and training .</br>
 
