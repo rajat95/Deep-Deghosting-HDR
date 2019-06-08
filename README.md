@@ -32,7 +32,7 @@ Use script infer.py to perform inference. The script expects : </br>
 
 ### Note : </br>
 
-1. To fit everything in single script, un-official PWC-NET implementation available in this [repository](https://github.com/philferriere/tfoptflow/tree/master/tfoptflow) is used, but you can use any other official implementation to precompute flows as well.  </br>
+1. To fit everything in single script, unofficial PWC-NET implementation available in this [repository](https://github.com/philferriere/tfoptflow/tree/master/tfoptflow) has been used, but you can use any other official implementation to precompute flows as well.  </br>
 2. The script is meant for 3 multi-exposure shots but can easily be extended to arbitrary number of inputs along similar lines.  </br>
 
 
