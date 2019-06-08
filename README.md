@@ -1,7 +1,7 @@
 # Deep Deghosting HDR:
 
-This Repository contains code and pretrained models for HDR version of our paper : (A Fast, Scalable, and Reliable Deghosting Method for Extreme Exposure Fusion) [Link] accepted at ICCP, 2019 .</br>
-It has been tested on GTX 1080ti and RTX 20170 GPUs and tensorflow 1.13 and contains scripts for both inference and training .</br>
+This Repository contains code and pretrained models for HDR version of our paper : (A Fast, Scalable, and Reliable Deghosting Method for Extreme Exposure Fusion) [Link][http://val.serc.iisc.ernet.in/ICCP19/files/EF_iccp19.pdf] accepted at ICCP, 2019 .</br>
+It has been tested on GTX 1080ti and RTX 2070 GPUs and tensorflow 1.13 and contains scripts for both inference and training .</br>
 
 ![](approach_overview.png)
 
@@ -32,7 +32,7 @@ Use script infer.py to perform inference. The script expects : </br>
 
 ### Note : </br>
 
-1. To fit everything in single script, un-official PWC-NET implementation available here in this (repository) [https://github.com/philferriere/tfoptflow/tree/master/tfoptflow] is used, but you can use any other official implementation to precompute flows.  </br>
+1. To fit everything in single script, un-official PWC-NET implementation available in this [repository] [https://github.com/philferriere/tfoptflow/tree/master/tfoptflow] is used, but you can use any other official implementation to precompute flows as well.  </br>
 2. The script is meant for 3 multi-exposure shots but can easily be extended to arbitrary number of inputs along similar lines.  </br>
 
 
@@ -65,7 +65,7 @@ python infer.py --source_dir ./data_samples/test_set --fusion_model tied --ref_l
 
 Note: Use pretrained refinement model to generate static version of training images  </br>
 
-1. train\_patch\_idx : list of training images. Download them from (here) [http://cseweb.ucsd.edu/~viscomp/projects/SIG17HDR/]. Refer to file data_samples/fusion\_train.txt and directory data_samples/fusion\_data for sample. </br>
+1. train\_patch\_idx : list of training images. Download them from [here] [http://cseweb.ucsd.edu/~viscomp/projects/SIG17HDR/]. Refer to file data_samples/fusion\_train.txt and directory data_samples/fusion\_data for sample. </br>
 2. test\_patch\_idx : list of test images. </br>
 3. fusion\_model : choose between untied and tied fusion model. </br>
 4. logdir :  checkpoints and tensorboard visualizations get logged here. </br>
