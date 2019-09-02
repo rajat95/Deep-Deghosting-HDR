@@ -49,7 +49,7 @@ def refine_dark(im1, im2, im12, im21, image_shape, batch_size=1, reuse=False, fl
     inp2 = tf.expand_dims(im12, 1)
     forward_vals = tf.concat([inp1, inp2], axis =1)
     backward_vals = tf.concat([inp2, inp1], axis = 1)
-    if fl:
+    if fl is not None:
         flow = fl
     else:
         pwc_inp = tf.concat([forward_vals, backward_vals], axis=0)
@@ -78,7 +78,7 @@ def refine_bright(im1, im2, im21, image_shape, batch_size=1, reuse=False, fl=Non
     inp2 = tf.expand_dims(im1, 1)
     forward_vals = tf.concat([inp1, inp2], axis =1)
     backward_vals = tf.concat([inp2, inp1], axis = 1)
-    if fl:
+    if fl is not None:
         flow = fl
     else:
         pwc_inp = tf.concat([forward_vals, backward_vals], axis=0)
