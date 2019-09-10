@@ -1,1 +1,1 @@
-../data_samples/fusion_data/001/
+./data_samples/fusion_data/001/
