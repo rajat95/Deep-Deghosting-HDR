@@ -13,6 +13,8 @@ sys.path.append("./losses")
 
 from untied_model import deepfuse_triple_untied
 from tied_model import deepfuse_triple_tied
+from tied_model_double_encoder import deepfuse_triple_2encoder
+from tied_model_triple_encoder import deepfuse_triple_3encoder
 from ycbcr_ms_ssim import tf_ms_ssim
 from termcolor import colored
 import random
@@ -20,15 +22,15 @@ from transform_utils import *
 from skimage.transform import resize
 from prepare_batch import data_pipeline
 import cv2
-
+from vgg_utils import compute_percep_loss
 
 begin_time = time.strftime("%m_%d-%H:%M:%S")
 parser = argparse.ArgumentParser()
 parser.add_argument('--train_patch_idx', default='./data_samples/fusion_train.txt', help='link to list of training patches')
 parser.add_argument('--test_patch_idx', default='./data_samples/fusion_test.txt', help='link to list of test patches')
-parser.add_argument('--fusion_model', default='tied', help='tied|untied')
+parser.add_argument('--fusion_model', default='triple_enc', help='tied|untied|double_enc|triple_enc')
 parser.add_argument('--logdir', default='static_fusion_logs/', help='path to training logs')
-parser.add_argument('--epochs', default=100, help='path to dataset')
+parser.add_argument('--iters', default=200001, help='path to dataset')
 parser.add_argument('--batch_size', type=int, default=8, help='input batch size')
 parser.add_argument('--image_dim', type=int, default=256, help='the height / width of the input image to network')
 parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
@@ -38,7 +40,7 @@ parser.add_argument('--gpu', default=0, help = 'which gpu to use' )
 parser.add_argument('--hdr', default=0, help = 'concatenate hdr along channels' )
 parser.add_argument('--hdr_weight', default=1, help = 'weight for hdr loss')
 parser.add_argument('--ssim_weight', default=5, help = 'weight for ssim loss')
-parser.add_argument('--perceptual_weight', type=float, default=0, help = 'weight for perceptual loss')
+parser.add_argument('--perceptual_weight', type=float, default=0.0001, help = 'weight for perceptual loss')
 
 
 
@@ -48,15 +50,13 @@ def restore_weights(sess, checkpoint_num):
     entire_saver.restore(sess, opts.logdir+'/checkpoints/model'+str(checkpoint_num)+'.ckpt')
 
 
-def train(train_patch_list, val_patch_list, fusion_model, batch_size, image_dim, epochs, checkpoint_dir, 
+def train(train_patch_list, val_patch_list, fusion_model, batch_size, image_dim, iters, checkpoint_dir, 
           train_logdir, val_logdir, restore, learning_rate, checkpoint_num, hdr, 
           hdr_weight, ssim_weight, perceptual_weight = 0):
 
-    N_PATCHES = len(train_patch_list)
     BATCH_SIZE = int(batch_size)
     IMAGE_DIM = int(image_dim)
-    N_EPOCHS = int(epochs)
-    N_VAL_PATCHES = len(val_patch_list)
+    N_VAL_PATCHES = int(len(val_patch_list))
 
     if not (os.path.exists(train_logdir)):
         os.mkdir(train_logdir[:train_logdir.index('/')])
@@ -80,8 +80,15 @@ def train(train_patch_list, val_patch_list, fusion_model, batch_size, image_dim,
 
     if fusion_model == 'tied':
         output = deepfuse_triple_tied(im1, im2, im3)
-    if fusion_model == 'untied':
+    elif fusion_model == 'untied':
         output = deepfuse_triple_untied(im1, im2, im3)
+    elif fusion_model == 'double_enc':
+        output = deepfuse_triple_2encoder(im1, im2, im3)
+    elif fusion_model == 'triple_enc':
+        output = deepfuse_triple_3encoder(im1, im2, im3)
+    else:
+        print('Choose correct value for model type')
+        return 
     compressed_gt = log_compressor(gt)
     compressed_output = log_compressor(output)
 
@@ -95,12 +102,7 @@ def train(train_patch_list, val_patch_list, fusion_model, batch_size, image_dim,
     avg_post_psnr = tf.reduce_mean(post_psnr)
 
     if perceptual_weight:
-        vgg_input = tf.concat([compressed_gt, compressed_output], axis = 0)
-        vgg = vgg16.Vgg16(image_dim=image_dim)
-        vgg.build(vgg_input)
-        perceptual_val1 = vgg.perceptual_layer[:batch_size]
-        perceptual_val2 = vgg.perceptual_layer[batch_size:]
-        perceptual_loss = perceptual_weight*tf.losses.mean_squared_error(perceptual_val1, perceptual_val2)
+        perceptual_loss = tf.reduce_mean(compute_percep_loss(compressed_gt, compressed_output)*perceptual_weight)
     else:
         perceptual_loss = tf.constant(0.0)
 
@@ -115,12 +117,16 @@ def train(train_patch_list, val_patch_list, fusion_model, batch_size, image_dim,
     overall_loss = (hdr_loss*hdr_weight)+(y_ssim_loss*ssim_weight)
     if perceptual_weight:
         overall_loss = overall_loss+perceptual_loss
+
     boundaries = [30000, 55000, 85000, 125000]
     values = [learning_rate, learning_rate/2.0, learning_rate/4.0, learning_rate/8.0, learning_rate/16.0]
-#    values = [1e-4, 0.5e-4, 0.25e-4, 0.125e-4, 0.125e-4/2]
     lr = tf.train.piecewise_constant(global_step, boundaries, values, 'lr_multisteps')
     print('total trainable vars :' + str(len(tf.trainable_variables())))
-    train_step = tf.train.AdamOptimizer(lr).minimize(overall_loss, global_step=global_step)
+
+    with tf.variable_scope('optimizer', reuse=tf.AUTO_REUSE):
+        optimizer = tf.train.AdamOptimizer(lr)
+        train_vars = [var for var in tf.trainable_variables() if 'DeepFuse' in var.name]
+        train_step = optimizer.minimize(overall_loss, var_list=train_vars, global_step = global_step)
 
     y_loss_summary = tf.summary.scalar('y_ssim_tag', 1 - y_ssim_loss)
 
@@ -177,8 +183,7 @@ def train(train_patch_list, val_patch_list, fusion_model, batch_size, image_dim,
         val_batch = val_iterator.get_next()
         sess.run(val_iterator.initializer)
         sess.run(train_iterator.initializer)
-        N_ITERS = 200000
-        for i in range(N_ITERS):
+        for i in range(iters):
             img1, img2, img3, ground_truth = sess.run(train_batch)
             gs, loss_write, image_write = sess.run([train_step, loss_summary, image_summary],
                                                        feed_dict={im1: img1, im2: img2,
@@ -242,7 +247,7 @@ if __name__ == '__main__':
           learning_rate=opts.lr,
           image_dim=opts.image_dim,
           checkpoint_dir=opts.logdir+'checkpoints/',
-          epochs=opts.epochs,
+          iters=opts.iters,
           train_logdir=opts.logdir+'train/',
           val_logdir=opts.logdir+'val/',
           checkpoint_num = opts.checkpoint_num,
@@ -251,4 +256,3 @@ if __name__ == '__main__':
           ssim_weight = int(opts.ssim_weight),
           perceptual_weight =float( opts.perceptual_weight)
           )
-
