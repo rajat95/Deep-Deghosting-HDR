@@ -13,6 +13,8 @@ sys.path.append("./losses")
 
 from untied_model import deepfuse_triple_untied
 from tied_model import deepfuse_triple_tied
+from tied_model_double_encoder import deepfuse_triple_2encoder
+from tied_model_triple_encoder import deepfuse_triple_3encoder
 from refine_unet import refine_net
 from PWCNet import pwc_net
 
@@ -21,16 +23,15 @@ from transform_utils import *
 from skimage.transform import resize
 from tf_warp import backward_warp
 
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--source_dir', default='./data_samples/test_data/', help='link to list of training patches')
-parser.add_argument('--fusion_model', default='tied', help='tied|untied')
+parser.add_argument('--fusion_model', default='tied', help='tied|untied|double_encoder|triple_encoder')
 parser.add_argument('--fusion_ckpt', default='./checkpoints/pretrained_tied_fusion/model150.ckpt', help='path to fusion ckpt')
 parser.add_argument('--refine_ckpt', default='./checkpoints/pretrained_refine/model55.ckpt', help='path to refine ckpt')
 parser.add_argument('--flow_ckpt', default='./checkpoints/pretrained_pwc/pwcnet.ckpt-595000', help='path to flow ckpt')
 parser.add_argument('--ref_label', default=2, help = 'which image to use as reference')
-parser.add_argument('--gpu', default=0, help = 'which gpu to use' )
+parser.add_argument('--hdr_channels', default=1, help = 'weather to concatenate hdr along channels')
+parser.add_argument('--gpu', default=0, help = 'which gpu to use')
 
 
 def refine_dark(im1, im2, im12, im21, image_shape, batch_size=1, reuse=False, fl=None):
@@ -103,6 +104,7 @@ def infer(source_dir, ref_label, fusion_model, fusion_ckpt, refine_ckpt, flow_ck
     im21 = tf.placeholder(tf.float32, shape=[1,None,None,3])
     im13 = tf.placeholder(tf.float32, shape=[1,None,None,3])
     image_dims = tf.placeholder(tf.int32, shape=[3])
+    ev_bias = tf.placeholder(tf.float32, shape=[1])
    
     if ref_label==2:
         im1_ref = refine_dark(im1, im2, im12, im21, image_dims)
@@ -112,10 +114,27 @@ def infer(source_dir, ref_label, fusion_model, fusion_ckpt, refine_ckpt, flow_ck
         im1_ref = im1
         im2_ref = refine_bright(im2, im1, im12, image_dims)
         im3_ref = refine_bright(im3, im1, im13, image_dims, reuse=True)
+        
+    if hdr_channels:
+        im1_ref_hdr = tf_ldr_to_hdr(im1_ref, 2**(ev_bias*0))
+        im2_ref_hdr = tf_ldr_to_hdr(im2_ref, 2**(ev_bias*1))
+        im3_ref_hdr = tf_ldr_to_hdr(im3_ref, 2**(ev_bias*2))
+        inp1 = tf.concat([im1_ref, im1_ref_hdr], axis=-1)
+        inp2 = tf.concat([im2_ref, im2_ref_hdr], axis=-1)
+        inp3 = tf.concat([im3_ref, im3_ref_hdr], axis=-1)
+    else:
+        inp1 = im1_ref
+        inp2 = im2_ref
+        inp3 = im3_ref
+        
     if fusion_model == 'tied':
-        final_hdr = deepfuse_triple_tied(im1_ref, im2_ref, im3_ref)
+        final_hdr = deepfuse_triple_tied(inp1, inp2, inp3)
     elif fusion_model == 'untied':
-        final_hdr = deepfuse_triple_untied(im1_ref, im2_ref, im3_ref)
+        final_hdr = deepfuse_triple_untied(inp1, inp2, inp3)
+    elif fusion_model == 'double_encoder':
+        final_hdr = deepfuse_triple_2encoder(inp1, inp2, inp3)
+    elif fusion_model == 'triple_encoder':
+        final_hdr = deepfuse_triple_3encoder(inp1, inp2, inp3)
     else:
         print('Choose either of tied or untied model')
         return 0
@@ -157,7 +176,7 @@ def infer(source_dir, ref_label, fusion_model, fusion_ckpt, refine_ckpt, flow_ck
 
             img1_ref, img2_ref, img3_ref, hdr_im = sess.run([im1_ref, im2_ref, im3_ref, final_hdr], feed_dict = {im1:img1, im2:img2,im3:img3, 
                                                                                                                  im12:img12, im21:img21, im23:img23, 
-                                                                                                                 image_dims:img1.shape[:-1]})
+                                                                                                                 ev_bias: [ev1], image_dims:img1.shape[:-1]})
 #            img1_ref = (img1_ref[0,padding_x//2:-1*(padding_x-(padding_x//2)),int(padding_y/2):-1*(padding_y-(padding_y//2)),:]*65535.0).astype(np.uint16)
 #            img2_ref = (img2_ref[0,padding_x//2:-1*(padding_x-(padding_x//2)),int(padding_y/2):-1*(padding_y-(padding_y//2)),:]*65535.0).astype(np.uint16)
 #            img3_ref = (img3_ref[0,padding_x//2:-1*(padding_x-(padding_x//2)),int(padding_y/2):-1*(padding_y-(padding_y//2)),:]*65535.0).astype(np.uint16)
