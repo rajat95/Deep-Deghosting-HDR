@@ -95,7 +95,7 @@ def refine_bright(im1, im2, im21, image_shape, batch_size=1, reuse=False, fl=Non
 def log_com(inp):
    return (tf.log(1+(5000.0*inp))/tf.log(1+5000.0))
 
-def infer(source_dir, ref_label, fusion_model, fusion_ckpt, refine_ckpt, flow_ckpt):
+def infer(source_dir, ref_label, hdr_channels, fusion_model, fusion_ckpt, refine_ckpt, flow_ckpt):
     im1 = tf.placeholder(tf.float32,shape=[1,None,None,3])
     im2 = tf.placeholder(tf.float32, shape=[1,None,None,3])
     im3 = tf.placeholder(tf.float32, shape=[1,None,None,3])
@@ -188,6 +188,7 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = str(opts.gpu)
     infer(source_dir = opts.source_dir, 
           ref_label = opts.ref_label,
+          hdr_channels = opts.hdr_channels,
           fusion_ckpt = opts.fusion_ckpt,
           fusion_model = opts.fusion_model,
           refine_ckpt = opts.refine_ckpt,
