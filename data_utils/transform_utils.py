@@ -56,6 +56,12 @@ def hdr_to_ldr(im, t, gamma = 2.2):
     im_out = np.clip(im_out**(1.0/gamma),0,1)
     return im_out
 
+def tf_ldr_to_hdr(im, t, batch_size = 1):
+    t = tf.reshape(t, [batch_size, 1, 1, 1])
+    out = tf.pow(im, 2.2)
+    out = out/t
+    return out
+
 def log_compressor(im, MU = 5000.):
     return tf.log(1+MU*im)/tf.log(1+MU)
 
