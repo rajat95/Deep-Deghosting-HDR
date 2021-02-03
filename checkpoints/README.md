@@ -1,1 +1,1 @@
-Please download the checkpoints here from [here](http://val.serc.iisc.ernet.in/ICCP19/files/checkpoints/)
+Please download the checkpoints here from [here](https://val.cds.iisc.ac.in/HDR/ICCP19/)
