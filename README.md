@@ -1,6 +1,6 @@
 # Deep Deghosting HDR:
 
-This Repository contains code and pretrained models for HDR version of our paper : [A Fast, Scalable, and Reliable Deghosting Method for Extreme Exposure Fusion](http://val.serc.iisc.ernet.in/ICCP19/files/EF_iccp19.pdf) accepted at ICCP, 2019 .</br>
+This Repository contains code and pretrained models for HDR version of our paper : [A Fast, Scalable, and Reliable Deghosting Method for Extreme Exposure Fusion](https://val.cds.iisc.ac.in/HDR/ICCP19/) accepted at ICCP, 2019 .</br>
 It has been tested on GTX 1080ti and RTX 2070 GPUs and tensorflow 1.13 and contains scripts for both inference and training .</br>
 
 ![](approach_overview.png)
